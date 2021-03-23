@@ -38,7 +38,7 @@ class ItunesTableViewCell: UITableViewCell {
 
     /// Loads a cover image for the cell
     /// - Parameter img: image to load
-    private func loadImage(_ img: URL) {
+    private func loadImage(_ img: URL?) {
         //if we happen to be loading the same image, then just return and let it load
         if currentImage == img {
             return
@@ -48,6 +48,7 @@ class ItunesTableViewCell: UITableViewCell {
         //set the current image url to the one we are loading
         currentImage = img
         //then try to load it
+        guard let img = img else { return }
         DispatchQueue.global().async { [weak self] in
             if let data = try? Data(contentsOf: img) {
                 if let image = UIImage(data: data) {

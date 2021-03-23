@@ -7,8 +7,26 @@
 
 import Foundation
 
-
+class NetworkConfig {
+    func getSession(configuration: URLSessionConfiguration) -> URLSession {
+        return URLSession(configuration: configuration)
+    }
+    func getRequest(url: URL) -> URLRequest {
+        return URLRequest(url: url)
+    }
+    func dataTask(session: URLSession, request: URLRequest,completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask? {
+        return session.dataTask(with: request, completionHandler: completionHandler)
+    }
+}
 class Network {
+    var config: NetworkConfig?
+    init(_ config: NetworkConfig? = nil) {
+        if let config = config {
+            self.config = config
+        } else {
+            self.config = NetworkConfig()
+        }
+    }
 
     /// Sends a request to the iTunes search
     /// - Parameters:
@@ -16,18 +34,18 @@ class Network {
     ///   - response: response with codable data
     func sendRequest(_ term: String, response:@escaping (ItunesSearch?) -> Void) {
         let sessionConfig = URLSessionConfiguration.default
-
-        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
+        guard let config = config else { return }
+        let session = config.getSession(configuration: sessionConfig)
 
         guard let baseUrl = URL(string: "https://itunes.apple.com/search") else {return}
         let URL = baseUrl.appending("term", value: term).appending("limit", value: "300")
-        var request = URLRequest(url: URL)
+        var request = config.getRequest(url: URL)
         request.httpMethod = "GET"
 
-        let task = session.dataTask(with: request, completionHandler: { (results: Data?, urlResponse: URLResponse?, error: Error?) -> Void in
+        let task = config.dataTask(session: session, request: request) { (results, urlResponse, error) in
             response(self.getCodable(results))
-        })
-        task.resume()
+        }
+        task?.resume()
         session.finishTasksAndInvalidate()
     }
 

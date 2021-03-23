@@ -28,11 +28,11 @@ struct ItunesResult: Codable {
     let trackViewURL: URL?
     let previewURL: URL?
     let artworkUrl30: URL?
-    let artworkUrl60: URL
-    let artworkUrl100: URL
+    let artworkUrl60: URL?
+    let artworkUrl100: URL?
     let collectionPrice: Double?
     let trackPrice: Double?
-    let releaseDate: Date
+    let releaseDate: Date?
     let collectionExplicitness: String?
     let trackExplicitness: String?
     let discCount: Int?
@@ -48,11 +48,18 @@ struct ItunesResult: Codable {
     let contentAdvisoryRating: String?
     let collectionArtistID: Int?
 
+    static let dateFormatter = DateFormatter()
+
+    /// Gets the formatted release data
+    /// - Returns: formatted release date
     func getReleaseDate() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/YYYY"
-        return dateFormatter.string(from: releaseDate)
+        ItunesResult.dateFormatter.dateFormat = "MM/dd/YYYY"
+        guard let releaseDate = releaseDate else { return "No Release Date"}
+        return ItunesResult.dateFormatter.string(from: releaseDate)
     }
+
+    /// Gets the price
+    /// - Returns: formatted price
     func getPrice() -> String {
         guard let price = trackPrice, price > 0 else {
             return "No Price"
