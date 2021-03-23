@@ -29,14 +29,24 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
     // MARK: Table View Data Source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return (data?.resultCount ?? 0) > 0 ? 1 : 0
+        //there is always one section because if there are no results it shows in the table
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return data?.resultCount ?? 0
+        //if there are no results, we still have one item because the first cell shows 'no results'
+        guard let resultCount = data?.resultCount else { return 1 }
+        return resultCount == 0 ? 1 : resultCount
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        //if there are no results show the message in the table
+        if data?.resultCount ?? 0 == 0 {
+            let cell = UITableViewCell()
+            cell.textLabel?.text = "No Results"
+            return cell
+        }
+        //otherwise populate the cell with the data
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "ItunesCell", for: indexPath) as? ItunesTableViewCell,
               (data?.resultCount ?? 0) > indexPath.row,
               let item = data?.results?[indexPath.row] else { return UITableViewCell() }
